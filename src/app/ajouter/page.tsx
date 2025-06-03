@@ -29,18 +29,6 @@ export default function AjouterMissionPage() {
 
     ajouterMission(nouvelleMission);
 
-    // 🔁 Appel API pour envoyer l'email
-    try {
-      await fetch('/api/send-email', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(nouvelleMission),
-      });
-      console.log('✅ Email envoyé avec succès');
-    } catch (error) {
-      console.error('❌ Erreur lors de l’envoi de l’email', error);
-    }
-
     // ✅ Redirection vers la page de succès
     router.push('/ajouter/succes');
   };

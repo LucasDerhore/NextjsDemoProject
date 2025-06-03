@@ -1,22 +1,9 @@
 @import "tailwindcss";
 
+/* Forcer le thème clair */
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
-
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+  --background: #f3f4f6; /* gris clair (Tailwind gray-100) */
+  --foreground: #1f2937; /* gris foncé (Tailwind gray-800) */
 }
 
 body {

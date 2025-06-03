@@ -63,105 +63,107 @@ export default function MissionsPage() {
       </div>
 
       {/* ✅ Liste filtrée */}
-      <AnimatePresence>
-        {filteredMissions.map((mission) => {
-        const handleDownloadPDF = () => {
-          const doc = new jsPDF();
+      <ul className="mt-8 space-y-6">
+        <AnimatePresence>
+          {filteredMissions.map((mission) => {
+          const handleDownloadPDF = () => {
+            const doc = new jsPDF();
 
-          // 📌 Style général
-          doc.setFont('helvetica', 'bold');
-          doc.setFontSize(22);
-          doc.setTextColor('#1F2937'); // gris foncé
-          doc.text(mission.titre, 105, 25, { align: 'center' });
+            // 📌 Style général
+            doc.setFont('helvetica', 'bold');
+            doc.setFontSize(22);
+            doc.setTextColor('#1F2937'); // gris foncé
+            doc.text(mission.titre, 105, 25, { align: 'center' });
 
-          // 🔲 Contour
-          doc.setDrawColor(150);
-          doc.rect(15, 15, 180, 260); // x, y, w, h
+            // 🔲 Contour
+            doc.setDrawColor(150);
+            doc.rect(15, 15, 180, 260); // x, y, w, h
 
-          // 🧾 Client
-          doc.setFontSize(14);
-          doc.setFont('helvetica', 'normal');
-          doc.setTextColor(80, 80, 80);
-          doc.text('Client :', 20, 45);
-          doc.setFont('helvetica', 'bold');
-          doc.text(mission.client, 50, 45);
+            // 🧾 Client
+            doc.setFontSize(14);
+            doc.setFont('helvetica', 'normal');
+            doc.setTextColor(80, 80, 80);
+            doc.text('Client :', 20, 45);
+            doc.setFont('helvetica', 'bold');
+            doc.text(mission.client, 50, 45);
 
-          // 🏷️ Catégories
-          doc.setFont('helvetica', 'normal');
-          doc.setTextColor(80, 80, 80);
-          doc.text('Catégories :', 20, 55);
-          doc.setFont('helvetica', 'bold');
-          doc.setTextColor(50, 102, 204); // bleu
+            // 🏷️ Catégories
+            doc.setFont('helvetica', 'normal');
+            doc.setTextColor(80, 80, 80);
+            doc.text('Catégories :', 20, 55);
+            doc.setFont('helvetica', 'bold');
+            doc.setTextColor(50, 102, 204); // bleu
 
-          let startX = 50;
-          const startY = 55;
-          mission.categorie.forEach((cat) => {
-            doc.setFillColor(230, 240, 255); // fond badge
-            doc.roundedRect(startX - 2, startY - 6, doc.getTextWidth(cat) + 8, 10, 2, 2, 'F');
-            doc.text(cat, startX + 2, startY);
-            startX += doc.getTextWidth(cat) + 14;
-          });
+            let startX = 50;
+            const startY = 55;
+            mission.categorie.forEach((cat) => {
+              doc.setFillColor(230, 240, 255); // fond badge
+              doc.roundedRect(startX - 2, startY - 6, doc.getTextWidth(cat) + 8, 10, 2, 2, 'F');
+              doc.text(cat, startX + 2, startY);
+              startX += doc.getTextWidth(cat) + 14;
+            });
 
-          // 📝 Description encadrée
-          doc.setFont('helvetica', 'normal');
-          doc.setTextColor(33, 33, 33);
-          const descriptionLines = doc.splitTextToSize(mission.description, 160);
+            // 📝 Description encadrée
+            doc.setFont('helvetica', 'normal');
+            doc.setTextColor(33, 33, 33);
+            const descriptionLines = doc.splitTextToSize(mission.description, 160);
 
-          doc.setFillColor(230, 240, 255); // fond gris clair
-          doc.rect(20, 70, 170, descriptionLines.length * 8 + 10, 'F');
+            doc.setFillColor(230, 240, 255); // fond gris clair
+            doc.rect(20, 70, 170, descriptionLines.length * 8 + 10, 'F');
 
-          doc.setFontSize(14);
-          doc.text('Description :', 22, 80);
-          doc.setFontSize(12);
-          doc.setTextColor(60);
-          doc.text(descriptionLines, 22, 90);
+            doc.setFontSize(14);
+            doc.text('Description :', 22, 80);
+            doc.setFontSize(12);
+            doc.setTextColor(60);
+            doc.text(descriptionLines, 22, 90);
 
-          // 📎 Sauvegarde
-          doc.save(`mission-${mission.id}.pdf`);
-        };
+            // 📎 Sauvegarde
+            doc.save(`mission-${mission.id}.pdf`);
+          };
 
-          return (
+            return (
             <motion.li
               key={mission.id}
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -10 }}
               transition={{ duration: 0.3 }}
-              className="border p-4 rounded-xl shadow hover:shadow-md transition"
+              className="bg-white border border-gray-400 p-6 rounded-xl shadow w-full max-w-3xl mx-auto"
             >
-              <h2 className="text-xl font-semibold">{mission.titre}</h2>
-              <p className="text-gray-600">Client : {mission.client}</p>
+              <h2 className="text-xl font-semibold text-gray-800">{mission.titre}</h2>
+              <p className="text-sm text-gray-600 mt-1">Client : {mission.client}</p>
+
               <Link
                 href={`/missions/${mission.id}`}
-                className="text-blue-600 hover:underline inline-block mt-2"
+                className="text-blue-600 hover:underline inline-block mt-2 text-sm font-medium"
               >
                 Voir les détails →
               </Link>
 
-              <div className="mt-3 flex flex-wrap gap-2">
+              {/* Catégories en badges colorés */}
+              <div className="mt-4 flex flex-wrap gap-2">
                 {mission.categorie.map((cat) => (
                   <span
                     key={cat}
-                    className={`inline-block px-2 py-1 rounded text-sm font-medium ${getBadgeColor(
-                      cat
-                    )}`}
+                    className={`px-2 py-1 rounded-full text-xs font-semibold ${getBadgeColor(cat)}`}
                   >
                     {cat}
                   </span>
                 ))}
               </div>
 
-              {/* ✅ Bouton PDF juste en dessous */}
+              {/* Bouton PDF */}
               <button
                 onClick={handleDownloadPDF}
-                className="mt-4 bg-indigo-600 hover:bg-indigo-700 text-white px-3 py-1 rounded text-sm"
+                className="mt-4 bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-1.5 rounded text-sm"
               >
                 📄 Télécharger en PDF
               </button>
             </motion.li>
-          );
-        })}
-      </AnimatePresence>
+            );
+          })}
+        </AnimatePresence>
+      </ul>
 
       {/* Aucun résultat */}
       {filteredMissions.length === 0 && (

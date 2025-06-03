@@ -3,7 +3,7 @@
 
 import { useParams } from 'next/navigation';
 import { useMissions } from '@/lib/MissionContext';
-import { notFound } from 'next/navigation';
+import jsPDF from 'jspdf';
 
 export default function MissionDetailPage() {
   const params = useParams();
@@ -15,9 +15,33 @@ export default function MissionDetailPage() {
     return <p className="p-6 text-red-500 text-lg font-semibold">Mission introuvable 😢</p>;
   }
 
+  const handleDownloadPDF = () => {
+  const doc = new jsPDF();
+
+  doc.setFontSize(18);
+  doc.text(mission.titre, 20, 20);
+
+  doc.setFontSize(12);
+  doc.text(`Client : ${mission.client}`, 20, 35);
+  doc.text(`Catégories : ${mission.categorie.join(', ')}`, 20, 45);
+
+  // Description multi-ligne si nécessaire
+  const descriptionLines = doc.splitTextToSize(`Description : ${mission.description}`, 170);
+  doc.text(descriptionLines, 20, 60);
+
+  // Téléchargement
+  doc.save(`mission-${mission.id}.pdf`);
+};
+
   return (
     <main className="p-6">
       <h1 className="text-3xl font-bold mb-4">{mission.titre}</h1>
+      <button
+        onClick={handleDownloadPDF}
+        className="mt-4 bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-xl"
+      >
+        📄 Télécharger en PDF
+      </button>
       <p className="text-gray-700 mb-2">
         <strong>Client :</strong> {mission.client}
       </p>

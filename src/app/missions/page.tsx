@@ -4,6 +4,7 @@ import { useState } from 'react';
 import Link from 'next/link';
 import { useMissions } from '@/lib/MissionContext';
 import { motion, AnimatePresence } from 'framer-motion';
+import jsPDF from 'jspdf';
 
 function getBadgeColor(categorie: string) {
   switch (categorie) {
@@ -63,37 +64,103 @@ export default function MissionsPage() {
 
       {/* ✅ Liste filtrée */}
       <AnimatePresence>
-        {filteredMissions.map((mission) => (
-          <motion.li
-            key={mission.id}
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -10 }}
-            transition={{ duration: 0.3 }}
-            className="border p-4 rounded-xl shadow hover:shadow-md transition"
-          >
-            <h2 className="text-xl font-semibold">{mission.titre}</h2>
-            <p className="text-gray-600">Client : {mission.client}</p>
-            <Link
-              href={`/missions/${mission.id}`}
-              className="text-blue-600 hover:underline inline-block mt-2"
+        {filteredMissions.map((mission) => {
+        const handleDownloadPDF = () => {
+          const doc = new jsPDF();
+
+          // 📌 Style général
+          doc.setFont('helvetica', 'bold');
+          doc.setFontSize(22);
+          doc.setTextColor('#1F2937'); // gris foncé
+          doc.text(mission.titre, 105, 25, { align: 'center' });
+
+          // 🔲 Contour
+          doc.setDrawColor(150);
+          doc.rect(15, 15, 180, 260); // x, y, w, h
+
+          // 🧾 Client
+          doc.setFontSize(14);
+          doc.setFont('helvetica', 'normal');
+          doc.setTextColor(80, 80, 80);
+          doc.text('Client :', 20, 45);
+          doc.setFont('helvetica', 'bold');
+          doc.text(mission.client, 50, 45);
+
+          // 🏷️ Catégories
+          doc.setFont('helvetica', 'normal');
+          doc.setTextColor(80, 80, 80);
+          doc.text('Catégories :', 20, 55);
+          doc.setFont('helvetica', 'bold');
+          doc.setTextColor(50, 102, 204); // bleu
+
+          let startX = 50;
+          const startY = 55;
+          mission.categorie.forEach((cat) => {
+            doc.setFillColor(230, 240, 255); // fond badge
+            doc.roundedRect(startX - 2, startY - 6, doc.getTextWidth(cat) + 8, 10, 2, 2, 'F');
+            doc.text(cat, startX + 2, startY);
+            startX += doc.getTextWidth(cat) + 14;
+          });
+
+          // 📝 Description encadrée
+          doc.setFont('helvetica', 'normal');
+          doc.setTextColor(33, 33, 33);
+          const descriptionLines = doc.splitTextToSize(mission.description, 160);
+
+          doc.setFillColor(230, 240, 255); // fond gris clair
+          doc.rect(20, 70, 170, descriptionLines.length * 8 + 10, 'F');
+
+          doc.setFontSize(14);
+          doc.text('Description :', 22, 80);
+          doc.setFontSize(12);
+          doc.setTextColor(60);
+          doc.text(descriptionLines, 22, 90);
+
+          // 📎 Sauvegarde
+          doc.save(`mission-${mission.id}.pdf`);
+        };
+
+          return (
+            <motion.li
+              key={mission.id}
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -10 }}
+              transition={{ duration: 0.3 }}
+              className="border p-4 rounded-xl shadow hover:shadow-md transition"
             >
-              Voir les détails →
-            </Link>
-            <div className="mt-3 flex flex-wrap gap-2">
-              {mission.categorie.map((cat) => (
-                <span
-                  key={cat}
-                  className={`inline-block px-2 py-1 rounded text-sm font-medium ${getBadgeColor(
-                    cat
-                  )}`}
-                >
-                  {cat}
-                </span>
-              ))}
-            </div>
-          </motion.li>
-        ))}
+              <h2 className="text-xl font-semibold">{mission.titre}</h2>
+              <p className="text-gray-600">Client : {mission.client}</p>
+              <Link
+                href={`/missions/${mission.id}`}
+                className="text-blue-600 hover:underline inline-block mt-2"
+              >
+                Voir les détails →
+              </Link>
+
+              <div className="mt-3 flex flex-wrap gap-2">
+                {mission.categorie.map((cat) => (
+                  <span
+                    key={cat}
+                    className={`inline-block px-2 py-1 rounded text-sm font-medium ${getBadgeColor(
+                      cat
+                    )}`}
+                  >
+                    {cat}
+                  </span>
+                ))}
+              </div>
+
+              {/* ✅ Bouton PDF juste en dessous */}
+              <button
+                onClick={handleDownloadPDF}
+                className="mt-4 bg-indigo-600 hover:bg-indigo-700 text-white px-3 py-1 rounded text-sm"
+              >
+                📄 Télécharger en PDF
+              </button>
+            </motion.li>
+          );
+        })}
       </AnimatePresence>
 
       {/* Aucun résultat */}
